@@ -43,7 +43,7 @@ jobs:
 
       - name: Test API endpoints
         run: |
-          python scripts/test_api.py
+          python scripts/test_api_ci.py
 
       - name: Check Dockerfile
         run: |
