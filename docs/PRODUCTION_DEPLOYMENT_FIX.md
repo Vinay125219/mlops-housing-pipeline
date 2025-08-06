@@ -22,6 +22,19 @@ This guide addresses the production deployment issues and provides step-by-step 
 
 **Solution**: Added `requests` to the pip install command in the workflow.
 
+### 4. CI/CD API Testing Issue
+**Problem**: The CI/CD pipeline was trying to test API endpoints without starting the API server first.
+
+**Solution**: Created `scripts/test_api_ci.py` that:
+- Starts the API server in the background
+- Tests all endpoints
+- Stops the server after testing
+
+### 5. Docker Image Not Found
+**Problem**: Docker image doesn't exist on Docker Hub because the CI/CD pipeline hasn't run successfully yet.
+
+**Solution**: Build the image locally first, then push to Docker Hub once the pipeline succeeds.
+
 ## Fixed Files
 
 ### 1. Updated Test Script (`scripts/test_api.py`)
@@ -33,6 +46,11 @@ This guide addresses the production deployment issues and provides step-by-step 
 - Added `requests` to dependencies
 - Improved Docker testing with comprehensive API checks
 - Better error handling and logging
+
+### 3. New CI Test Script (`scripts/test_api_ci.py`)
+- Starts API server automatically
+- Tests all endpoints
+- Cleans up server after testing
 
 ## Production Deployment Steps
 
@@ -69,6 +87,8 @@ git push origin main
 
 ### Step 5: Deploy to Production
 
+#### Option A: Wait for CI/CD Pipeline (Recommended)
+
 Once the pipeline succeeds:
 
 ```bash
@@ -77,6 +97,18 @@ docker pull YOUR_DOCKER_USERNAME/mlops-app:latest
 
 # Run the container
 docker run -p 8000:8000 YOUR_DOCKER_USERNAME/mlops-app:latest
+```
+
+#### Option B: Build Locally (If Pipeline Fails)
+
+If the CI/CD pipeline fails or you need to deploy immediately:
+
+```bash
+# Build the image locally
+docker build -t mlops-app:latest .
+
+# Run the container
+docker run -p 8000:8000 mlops-app:latest
 ```
 
 ## Testing the Deployment
@@ -151,6 +183,21 @@ Expected response:
 - Verify model files are loaded correctly
 - Check input data format
 - Ensure all required features are provided
+
+### Issue 5: Docker Image Not Found
+**Symptoms**: `docker pull` fails with "not found" error
+**Solutions**:
+- Check if CI/CD pipeline completed successfully
+- Verify Docker Hub credentials in GitHub secrets
+- Build image locally: `docker build -t mlops-app:latest .`
+- Push to Docker Hub manually if needed
+
+### Issue 6: CI/CD Pipeline Fails on API Testing
+**Symptoms**: Pipeline fails with connection refused errors
+**Solutions**:
+- The new `scripts/test_api_ci.py` should fix this
+- Check if the API server starts correctly in the CI environment
+- Verify all dependencies are installed
 
 ## Production Best Practices
 

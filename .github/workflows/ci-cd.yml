@@ -47,11 +47,22 @@ jobs:
 
       - name: Check Dockerfile
         run: |
+          echo "Current working directory: $(pwd)"
+          echo "Listing files in current directory:"
+          ls -la
+          echo ""
+          echo "Checking for Dockerfile:"
           if [ -f "Dockerfile" ]; then
             echo "✅ Dockerfile exists"
+            echo "Dockerfile contents:"
+            cat Dockerfile
+            echo ""
+            echo "Testing Docker build:"
             docker build --dry-run . || echo "⚠️ Dockerfile has issues"
           else
             echo "❌ Dockerfile not found"
+            echo "Available files:"
+            ls -la | grep -i docker
             exit 1
           fi
 
