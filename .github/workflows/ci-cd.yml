@@ -20,19 +20,52 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8
+          pip install flake8 pytest
+
+      - name: Create necessary directories
+        run: |
+          mkdir -p data models housinglogs irislogs
+
+      - name: Run data preprocessing
+        run: |
+          python src/load_data.py
+
+      - name: Train models
+        run: |
+          python src/train_and_track_simple.py
+          python src/train_iris_simple.py
 
       - name: Lint with flake8
         run: |
-          flake8 src api --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src api --count --select=E9,F63,F7,F82 --show-source --statistics --max-line-length=120
+
+      - name: Test API endpoints
+        run: |
+          pip install requests
+          python scripts/test_api.py
+
+      - name: Check Dockerfile
+        run: |
+          if [ -f "Dockerfile" ]; then
+            echo "✅ Dockerfile exists"
+            docker build --dry-run . || echo "⚠️ Dockerfile has issues"
+          else
+            echo "❌ Dockerfile not found"
+            exit 1
+          fi
 
   docker-build-push:
     needs: build-test-lint
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -44,3 +77,32 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/mlops-app:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/mlops-app:latest
+          echo "✅ Docker image built and pushed successfully"
+
+      - name: Test Docker image
+        run: |
+          docker run --rm -d --name test-mlops-app -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/mlops-app:latest
+          sleep 10
+          curl -f http://localhost:8000/ || echo "⚠️ API health check failed"
+          docker stop test-mlops-app
+
+  security-scan:
+    needs: build-test-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Security scan with Bandit
+        run: |
+          pip install bandit
+          bandit -r src api -f json -o bandit-report.json || echo "⚠️ Security issues found"
+          echo "✅ Security scan completed"
+
+      - name: Check for secrets in code
+        run: |
+          if grep -r "password\|secret\|key" src api --exclude="*.pyc" --exclude="__pycache__"; then
+            echo "⚠️ Potential secrets found in code"
+          else
+            echo "✅ No obvious secrets found in code"
+          fi

@@ -25,7 +25,7 @@ def load_and_save():
 
     # Save preprocessed data
     df_processed.to_csv("data/housing.csv", index=False)
-    print("✅ Preprocessed data saved to data/housing.csv")
+    print("SUCCESS: Preprocessed data saved to data/housing.csv")
 
 if __name__ == "__main__":
     load_and_save()
