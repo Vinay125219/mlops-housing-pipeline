@@ -186,6 +186,16 @@ The pipeline should complete these steps:
 - Fix any actual security issues
 - Update code to follow security best practices
 
+### Issue 5: Production Deployment Issues
+
+**Symptoms**: Container won't start or API not responding
+**Solutions**:
+- Check Docker Hub credentials in GitHub secrets
+- Verify the Docker image was built successfully
+- Use the deployment script: `bash scripts/deploy.sh`
+- Check container logs: `docker logs mlops-app`
+- Ensure port 8000 is available
+
 ## Step 7: Monitor and Maintain
 
 ### 7.1 Regular Monitoring
@@ -226,6 +236,25 @@ docker pull YOUR_DOCKER_USERNAME/mlops-app:latest
 # Run the container
 docker run -p 8000:8000 YOUR_DOCKER_USERNAME/mlops-app:latest
 ```
+
+### 8.2 Using Deployment Script
+
+For easier deployment, use the provided deployment script:
+
+```bash
+# Set your Docker username
+export DOCKER_USERNAME=your-username
+
+# Run the deployment script
+bash scripts/deploy.sh
+```
+
+The deployment script will:
+- Pull the latest Docker image
+- Stop any existing container
+- Start a new container
+- Test the API endpoints
+- Show deployment status
 
 ### 8.2 Using GitHub Actions
 

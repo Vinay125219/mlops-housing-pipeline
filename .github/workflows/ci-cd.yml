@@ -22,7 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8 pytest
+          pip install flake8 pytest requests
 
       - name: Create necessary directories
         run: |
@@ -43,7 +43,6 @@ jobs:
 
       - name: Test API endpoints
         run: |
-          pip install requests
           python scripts/test_api.py
 
       - name: Check Dockerfile
@@ -81,9 +80,22 @@ jobs:
 
       - name: Test Docker image
         run: |
+          # Start the container
           docker run --rm -d --name test-mlops-app -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/mlops-app:latest
-          sleep 10
+          
+          # Wait for the API to start
+          sleep 15
+          
+          # Test the API
           curl -f http://localhost:8000/ || echo "⚠️ API health check failed"
+          
+          # Test prediction endpoint
+          curl -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"total_rooms": 8.0, "total_bedrooms": 3.0, "population": 1000.0, "households": 500.0, "median_income": 3.5, "housing_median_age": 35.0, "latitude": 37.7749, "longitude": -122.4194}' \
+            || echo "⚠️ Prediction endpoint test failed"
+          
+          # Stop the container
           docker stop test-mlops-app
 
   security-scan:
