@@ -138,8 +138,8 @@ python src/load_data.py
 
 ### Test Model Training:
 ```bash
-python src/train_and_track_simple.py
-python src/train_iris_simple.py
+python src/train_and_track.py
+python src/train_iris.py
 ```
 
 ### Test APIs:
@@ -181,8 +181,8 @@ mlops-housing-pipeline/
 │   └── verify_pipeline.py               # Pipeline verification
 ├── src/
 │   ├── load_data.py                     # Data preprocessing
-│   ├── train_and_track_simple.py        # Housing model training
-│   └── train_iris_simple.py             # Iris model training
+│   ├── train_and_track.py               # Housing model training
+│   └── train_iris.py                    # Iris model training
 ├── Dockerfile                           # Container configuration
 ├── README.md                            # Project overview
 └── requirements.txt                     # Dependencies

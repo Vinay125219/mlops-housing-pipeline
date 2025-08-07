@@ -99,7 +99,7 @@ mlops-housing-pipeline/
 ├── src/
 │   ├── load_data.py
 │   ├── train_and_track.py
-│   ├── train_and_track_simple.py
+│   ├── train_and_track.py
 │   ├── train_iris.py
 │   └── train_iris_simple.py
 ├── Dockerfile

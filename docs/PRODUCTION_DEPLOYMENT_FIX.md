@@ -35,6 +35,30 @@ This guide addresses the production deployment issues and provides step-by-step 
 
 **Solution**: Build the image locally first, then push to Docker Hub once the pipeline succeeds.
 
+### 6. CI/CD Pipeline Fails on API Testing
+**Symptoms**: Pipeline fails with connection refused errors
+**Solutions**:
+- The new `scripts/test_api_ci.py` should fix this
+- Check if the API server starts correctly in the CI environment
+- Verify all dependencies are installed
+
+### 7. Dockerfile Not Found Error
+**Symptoms**: CI/CD pipeline fails with "Dockerfile not found" error
+**Solutions**:
+- Ensure the file is named exactly `Dockerfile` (lowercase 'f')
+- Windows is case-insensitive but Linux (CI/CD) is case-sensitive
+- If the file was created as `DockerFile` (capital F), rename it to `Dockerfile`
+- Use `git mv DockerFile Dockerfile` to fix the case sensitivity issue
+
+### Issue 8: Docker Hub Authentication Failed
+**Symptoms**: `unauthorized: access token has insufficient scopes` error
+**Solutions**:
+- Go to [Docker Hub Security Settings](https://hub.docker.com/settings/security)
+- Create a new access token with `Read & Write` permissions
+- Update the `DOCKER_PASSWORD` GitHub secret with the new token
+- Ensure `DOCKER_USERNAME` is set to your Docker Hub username
+- Test locally: `bash scripts/test_docker_hub.sh`
+
 ## Fixed Files
 
 ### 1. Updated Test Script (`scripts/test_api.py`)
@@ -198,6 +222,23 @@ Expected response:
 - The new `scripts/test_api_ci.py` should fix this
 - Check if the API server starts correctly in the CI environment
 - Verify all dependencies are installed
+
+### 7. Dockerfile Not Found Error
+**Symptoms**: CI/CD pipeline fails with "Dockerfile not found" error
+**Solutions**:
+- Ensure the file is named exactly `Dockerfile` (lowercase 'f')
+- Windows is case-insensitive but Linux (CI/CD) is case-sensitive
+- If the file was created as `DockerFile` (capital F), rename it to `Dockerfile`
+- Use `git mv DockerFile Dockerfile` to fix the case sensitivity issue
+
+### Issue 8: Docker Hub Authentication Failed
+**Symptoms**: `unauthorized: access token has insufficient scopes` error
+**Solutions**:
+- Go to [Docker Hub Security Settings](https://hub.docker.com/settings/security)
+- Create a new access token with `Read & Write` permissions
+- Update the `DOCKER_PASSWORD` GitHub secret with the new token
+- Ensure `DOCKER_USERNAME` is set to your Docker Hub username
+- Test locally: `bash scripts/test_docker_hub.sh`
 
 ## Production Best Practices
 
